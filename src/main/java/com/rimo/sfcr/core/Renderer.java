@@ -303,8 +303,8 @@ public class Renderer {
 							verCache[0][2] + SFCReMain.RUNTIME.partialOffset + 0.7f
 									).normalize()) < 0.034074f) {		// clouds is moving, z-pos isn't precise, so leave some margin
 						// Position Culling
-						int j = 0;
-						while (j++ < 4) {
+						int j = -1;
+						while (++j < 4) {
 							if (camVec.dotProduct(new Vec3d(
 									verCache[j][0] + 0.01f,
 									verCache[j][1] + cloudHeight + 0.01f - CONFIG.getCloudBlockSize() - MinecraftClient.getInstance().gameRenderer.getCamera().getPos().y,
