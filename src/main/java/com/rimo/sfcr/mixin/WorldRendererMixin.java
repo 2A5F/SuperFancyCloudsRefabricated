@@ -22,6 +22,7 @@ public abstract class WorldRendererMixin {
 
 	@Inject(method = "renderClouds", at = @At("HEAD"), cancellable = true)
 	public void renderSFC(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+		if (world == null) return;
 		if (SFCReMain.config.isEnableMod() && world.getDimension().hasSkyLight()) {
 			SFCReClient.RENDERER.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ);
 			ci.cancel();
