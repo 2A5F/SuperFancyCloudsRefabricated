@@ -1,8 +1,6 @@
 package com.rimo.sfcr.mixin;
 
-import com.rimo.sfcr.SFCReClient;
-import com.rimo.sfcr.SFCReMain;
-
+import com.rimo.sfcr.core.ForwardRenderer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -22,11 +20,6 @@ public abstract class WorldRendererMixin {
 
 	@Inject(method = "renderClouds", at = @At("HEAD"), cancellable = true)
 	public void renderSFC(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
-		if (world == null) return;
-		if (SFCReMain.config.isEnableMod() && world.getDimension().hasSkyLight()) {
-			SFCReClient.RENDERER.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ);
-			ci.cancel();
-			return;
-		}
+		ForwardRenderer.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ, ci);
 	}
 }
