@@ -1,13 +1,12 @@
 package com.rimo.sfcr.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL44C;
 
-import java.lang.ref.Cleaner;
-
 @Environment(EnvType.CLIENT)
-public class ComputeShaderProgram implements Cleaner.Cleanable {
+public class ComputeShaderProgram implements AutoCloseable {
 
     public int program;
 
@@ -16,15 +15,20 @@ public class ComputeShaderProgram implements Cleaner.Cleanable {
     }
 
     @Override
-    public void clean() {
-        GL44C.glDeleteProgram(program);
+    public void close() {
+        if (RenderSystem.isOnRenderThread()) {
+            GL44C.glDeleteProgram(program);
+        } else {
+            RenderSystem.recordRenderCall(() -> {
+                GL44C.glDeleteProgram(program);
+            });
+        }
     }
 
     public static ComputeShaderProgram load(String path) {
+        RenderSystem.assertOnRenderThreadOrInit();
         var program = ShaderUtils.LoadComputeProgramRaw(path);
         if (program == -1) return null;
-        return new ComputeShaderProgram(program); // todo
+        return new ComputeShaderProgram(program);
     }
-
-
 }

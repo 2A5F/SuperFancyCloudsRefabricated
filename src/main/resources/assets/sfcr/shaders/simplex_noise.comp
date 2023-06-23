@@ -28,17 +28,13 @@ double grad(int hash, dvec3 pos, double distance) {
     return e;
 }
 
-layout (local_size_x = 16, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-layout (std430, binding = 1) buffer the_sample_input
-{
-    dvec3 sample_input[];
-};
+// Requires size to be the same as group size
+// <group size> = ceil(imageSize(sample_result) / vec3(8, 8, 8))
+layout (binding = 1, rgba32i) uniform readonly restrict iimage3D sample_group_offset;
 
-layout (std430, binding = 2) buffer the_sample_output
-{
-    double sample_output[];
-};
+layout (binding = 2, r32f) uniform writeonly restrict image3D sample_result;
 
 double do_sample(dvec3 pos) {
     double d = 0.3333333333333333;
@@ -90,5 +86,10 @@ double do_sample(dvec3 pos) {
 }
 
 void main() {
-    sample_output[gl_GlobalInvocationID.x] = do_sample(sample_input[gl_GlobalInvocationID.x]);
+    ivec3 total_size = imageSize(sample_result);
+    if (gl_GlobalInvocationID.x >= total_size.x || gl_GlobalInvocationID.y >= total_size.y || gl_GlobalInvocationID.z >= total_size.z) return;
+    ivec3 offset = imageLoad(sample_group_offset, ivec3(gl_WorkGroupID)).xyz;
+    dvec3 pos = dvec3(ivec3(gl_LocalInvocationID) + offset);
+    double result = do_sample(pos);
+    imageStore(sample_result, ivec3(gl_GlobalInvocationID), vec4(result));
 }

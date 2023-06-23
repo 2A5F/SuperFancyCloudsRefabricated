@@ -111,6 +111,14 @@ public class SFCReConfigScreen {
 				.setTooltip(Text.translatable("text.sfcr.option.debug.@Tooltip"))
 				.setSaveConsumer(config::setEnableDebug)
 				.build());
+		// GPU
+		general.addEntry(entryBuilder
+				.startBooleanToggle(Text.translatable("text.sfcr.option.gpu")
+						,config.isEnableGPU())
+				.setDefaultValue(false)
+				.setTooltip(Text.translatable("text.sfcr.option.gpu.@Tooltip"))
+				.setSaveConsumer(config::setEnableGPU)
+				.build());
 	}
 
 	private void buildCloudsCategory() {

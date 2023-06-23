@@ -1,13 +1,12 @@
 package com.rimo.sfcr.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL44C;
 
-import java.lang.ref.Cleaner;
-
 @Environment(EnvType.CLIENT)
-public abstract class GLBuffer implements Cleaner.Cleanable {
+public abstract class GLBuffer implements AutoCloseable {
     public int buffer;
 
     public GLBuffer() {
@@ -24,9 +23,16 @@ public abstract class GLBuffer implements Cleaner.Cleanable {
     }
 
     @Override
-    public void clean() {
-        GL44C.glDeleteBuffers(buffer);
-        GLErr.Check();
+    public void close() {
+        if (RenderSystem.isOnRenderThread()) {
+            GL44C.glDeleteBuffers(buffer);
+            GLErr.Check();
+        } else {
+            RenderSystem.recordRenderCall(() -> {
+                GL44C.glDeleteBuffers(buffer);
+                GLErr.Check();
+            });
+        }
     }
 
     public abstract void bind();

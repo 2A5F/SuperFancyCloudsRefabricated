@@ -1,5 +1,6 @@
 package com.rimo.sfcr.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.rimo.sfcr.SFCReMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,8 +14,9 @@ import java.util.Objects;
 @Environment(EnvType.CLIENT)
 public class ShaderUtils {
     public static int LoadShaderRaw(String path) {
+        RenderSystem.assertOnRenderThreadOrInit();
         String code;
-        try (var is = GpuSimplexNoise.class.getClassLoader().getResourceAsStream("assets/sfcr/shaders/simplex_noise.comp")) {
+        try (var is = SFCReMain.class.getClassLoader().getResourceAsStream(path)) {
             code = IOUtils.toString(Objects.requireNonNull(is), StandardCharsets.UTF_8);
         } catch (IOException e) {
             SFCReMain.LOGGER.error("Could not load shader: <" + path + ">");
@@ -34,6 +36,7 @@ public class ShaderUtils {
     }
 
     public static int LoadComputeProgramRaw(String path) {
+        RenderSystem.assertOnRenderThreadOrInit();
         var shader = ShaderUtils.LoadShaderRaw(path);
         if (shader == -1) return -1;
         var program = GL44C.glCreateProgram();
