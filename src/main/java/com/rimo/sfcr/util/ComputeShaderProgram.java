@@ -3,7 +3,7 @@ package com.rimo.sfcr.util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.lwjgl.opengl.GL44C;
+import org.lwjgl.opengl.GL45C;
 
 @Environment(EnvType.CLIENT)
 public class ComputeShaderProgram implements AutoCloseable {
@@ -17,10 +17,10 @@ public class ComputeShaderProgram implements AutoCloseable {
     @Override
     public void close() {
         if (RenderSystem.isOnRenderThread()) {
-            GL44C.glDeleteProgram(program);
+            GL45C.glDeleteProgram(program);
         } else {
             RenderSystem.recordRenderCall(() -> {
-                GL44C.glDeleteProgram(program);
+                GL45C.glDeleteProgram(program);
             });
         }
     }

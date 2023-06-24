@@ -5,16 +5,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL44C;
+import org.lwjgl.opengl.GL45C;
 
 @Environment(EnvType.CLIENT)
 public class GlTexture implements AutoCloseable {
     public final int texture;
     public final int target;
+    public final int format;
     public final int width;
     public final int height;
     public final int depth;
-    private boolean bilinear;
-    private boolean mipmap;
 
     @Override
     public void close() {
@@ -27,65 +27,48 @@ public class GlTexture implements AutoCloseable {
         }
     }
 
-    private GlTexture(int texture, int target, int width, int height, int depth, boolean bilinear, boolean mipmap) {
+    private GlTexture(int texture, int target, int format, int width, int height, int depth) {
         this.texture = texture;
         this.target = target;
+        this.format = format;
         this.width = width;
         this.height = height;
         this.depth = depth;
-        this.bilinear = bilinear;
-        this.mipmap = mipmap;
+    }
+
+    public static GlTexture create1D(int length, int internalformat, int format, int type) {
+        RenderSystem.assertOnRenderThreadOrInit();
+        var tex = TextureUtil.generateTextureId();
+        var target = GL45C.GL_TEXTURE_1D;
+        GL45C.glBindTexture(target, tex);
+        GLErr.check();
+        GL45C.glTexImage1D(target, 0, internalformat, length, 0, format, type, 0);
+        GLErr.check();
+        GL45C.glBindTexture(target, 0);
+        GLErr.check();
+        return new GlTexture(tex, target, format, length, 1, 1);
     }
 
     public static GlTexture create3D(int width, int height, int depth, int format) {
-        return create3D(width, height, depth, format, false, false);
-    }
-
-    public static GlTexture create3D(int width, int height, int depth, int format, boolean bilinear, boolean mipmap) {
         RenderSystem.assertOnRenderThreadOrInit();
         var tex = TextureUtil.generateTextureId();
-        var target = GL44C.GL_TEXTURE_3D;
-        GL44C.glBindTexture(target, tex);
-        setFilterInternal(target, bilinear, mipmap);
-        GL44C.glTexStorage3D(target, 1, format, width, height, depth);
-        return new GlTexture(tex, target, width, height, depth, bilinear, mipmap);
+        var target = GL45C.GL_TEXTURE_3D;
+        GL45C.glBindTexture(target, tex);
+        GLErr.check();
+        GL45C.glTexStorage3D(target, 1, format, width, height, depth);
+        GLErr.check();
+        GL45C.glBindTexture(target, 0);
+        GLErr.check();
+        return new GlTexture(tex, target, format, width, height, depth);
     }
 
-    public void bind() {
+    public void upload1D(int format, int type, int[] data) {
         RenderSystem.assertOnRenderThreadOrInit();
-        GL44C.glBindTexture(target, texture);
+        GL45C.glBindTexture(target, texture);
+        GLErr.check();
+        GL44C.glTexSubImage1D(target, 0, 0, width, format, type, data);
+        GLErr.check();
+        GL45C.glBindTexture(target, 0);
+        GLErr.check();
     }
-
-    public void setFilter(boolean bilinear, boolean mipmap) {
-        RenderSystem.assertOnRenderThreadOrInit();
-        this.bilinear = bilinear;
-        this.mipmap = mipmap;
-        this.bind();
-        setFilterInternal(target, bilinear, mipmap);
-    }
-
-    private static void setFilterInternal(int target, boolean bilinear, boolean mipmap) {
-        int min, mag;
-        if (bilinear) {
-            min = mipmap ? GL44C.GL_LINEAR_MIPMAP_LINEAR : GL44C.GL_LINEAR;
-            mag = GL44C.GL_LINEAR;
-        } else {
-            min = mipmap ? GL44C.GL_NEAREST_MIPMAP_LINEAR : GL44C.GL_NEAREST;
-            mag = GL44C.GL_NEAREST;
-        }
-
-        GL44C.glTexParameteri(target, GL44C.GL_TEXTURE_MIN_FILTER, min);
-        GLErr.Check();
-        GL44C.glTexParameteri(target, GL44C.GL_TEXTURE_MAG_FILTER, mag);
-        GLErr.Check();
-    }
-
-    public boolean isBilinear() {
-        return bilinear;
-    }
-
-    public boolean isMipmap() {
-        return mipmap;
-    }
-
 }

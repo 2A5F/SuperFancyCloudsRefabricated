@@ -3,15 +3,15 @@ package com.rimo.sfcr.util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.lwjgl.opengl.GL44C;
+import org.lwjgl.opengl.GL45C;
 
 @Environment(EnvType.CLIENT)
 public abstract class GLBuffer implements AutoCloseable {
     public int buffer;
 
     public GLBuffer() {
-        buffer = GL44C.glGenBuffers();
-        GLErr.Check();
+        buffer = GL45C.glGenBuffers();
+        GLErr.check();
     }
 
     public static UniformGLBuffer createUniform() {
@@ -25,12 +25,12 @@ public abstract class GLBuffer implements AutoCloseable {
     @Override
     public void close() {
         if (RenderSystem.isOnRenderThread()) {
-            GL44C.glDeleteBuffers(buffer);
-            GLErr.Check();
+            GL45C.glDeleteBuffers(buffer);
+            GLErr.check();
         } else {
             RenderSystem.recordRenderCall(() -> {
-                GL44C.glDeleteBuffers(buffer);
-                GLErr.Check();
+                GL45C.glDeleteBuffers(buffer);
+                GLErr.check();
             });
         }
     }
@@ -41,5 +41,9 @@ public abstract class GLBuffer implements AutoCloseable {
 
     public abstract void uploadImmutable(int[] data);
 
-    public abstract void upload(int[] data);
+    public abstract void uploadImmutable(double[] data);
+
+    public abstract void upload(int[] data, int usage);
+
+    public abstract void upload(double[] data, int usage);
 }

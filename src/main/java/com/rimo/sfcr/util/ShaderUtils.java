@@ -5,7 +5,7 @@ import com.rimo.sfcr.SFCReMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.commons.io.IOUtils;
-import org.lwjgl.opengl.GL44C;
+import org.lwjgl.opengl.GL45C;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,14 +22,14 @@ public class ShaderUtils {
             SFCReMain.LOGGER.error("Could not load shader: <" + path + ">");
             return -1;
         }
-        var shader = GL44C.glCreateShader(GL44C.GL_COMPUTE_SHADER);
-        GL44C.glShaderSource(shader, code);
-        GL44C.glCompileShader(shader);
-        var compiled = GL44C.glGetShaderi(shader, GL44C.GL_COMPILE_STATUS);
+        var shader = GL45C.glCreateShader(GL45C.GL_COMPUTE_SHADER);
+        GL45C.glShaderSource(shader, code);
+        GL45C.glCompileShader(shader);
+        var compiled = GL45C.glGetShaderi(shader, GL45C.GL_COMPILE_STATUS);
         if (compiled == 0) {
-            var log = GL44C.glGetShaderInfoLog(shader);
+            var log = GL45C.glGetShaderInfoLog(shader);
             SFCReMain.LOGGER.error("Could not compile shader <" + path + "> ; shader info: " + log);
-            GL44C.glDeleteShader(shader);
+            GL45C.glDeleteShader(shader);
             return -1;
         }
         return shader;
@@ -39,15 +39,15 @@ public class ShaderUtils {
         RenderSystem.assertOnRenderThreadOrInit();
         var shader = ShaderUtils.LoadShaderRaw(path);
         if (shader == -1) return -1;
-        var program = GL44C.glCreateProgram();
-        GL44C.glAttachShader(program, shader);
-        GL44C.glLinkProgram(program);
-        GL44C.glDeleteShader(shader);
-        var linked = GL44C.glGetProgrami(program, GL44C.GL_LINK_STATUS);
+        var program = GL45C.glCreateProgram();
+        GL45C.glAttachShader(program, shader);
+        GL45C.glLinkProgram(program);
+        GL45C.glDeleteShader(shader);
+        var linked = GL45C.glGetProgrami(program, GL45C.GL_LINK_STATUS);
         if (linked == 0) {
-            var log = GL44C.glGetProgramInfoLog(program);
+            var log = GL45C.glGetProgramInfoLog(program);
             SFCReMain.LOGGER.error("Could not link shader program <" + path + "> ; program info: " + log);
-            GL44C.glDeleteProgram(program);
+            GL45C.glDeleteProgram(program);
             return -1;
         }
         return program;
