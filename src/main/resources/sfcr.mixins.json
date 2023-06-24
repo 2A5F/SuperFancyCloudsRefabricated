@@ -10,7 +10,7 @@
     "DebugHudMixin",
     "GameOptionsMixin",
     "GameRendererMixin",
-    "GLVersionHintMixin"
+    "GlVersionHintMixin"
   ],
   "server": [],
   "injectors": {

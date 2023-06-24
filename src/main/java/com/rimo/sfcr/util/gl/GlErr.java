@@ -1,10 +1,9 @@
-package com.rimo.sfcr.util;
+package com.rimo.sfcr.util.gl;
 
 import com.rimo.sfcr.SFCReMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.ARBImaging.GL_TABLE_TOO_LARGE;
@@ -12,7 +11,7 @@ import static org.lwjgl.opengl.GL45C.*;
 import static org.lwjgl.system.APIUtil.apiUnknownToken;
 
 @Environment(EnvType.CLIENT)
-public class GLErr {
+public class GlErr {
     public static void check() {
         var err = glGetError();
         if (err == 0) return;

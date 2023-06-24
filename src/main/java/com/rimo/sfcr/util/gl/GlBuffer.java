@@ -1,4 +1,4 @@
-package com.rimo.sfcr.util;
+package com.rimo.sfcr.util.gl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -6,31 +6,31 @@ import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL45C;
 
 @Environment(EnvType.CLIENT)
-public abstract class GLBuffer implements AutoCloseable {
+public abstract class GlBuffer implements AutoCloseable {
     public int buffer;
 
-    public GLBuffer() {
+    public GlBuffer() {
         buffer = GL45C.glGenBuffers();
-        GLErr.check();
+        GlErr.check();
     }
 
-    public static UniformGLBuffer createUniform() {
-        return new UniformGLBuffer();
+    public static GlUniformBuffer createUniform() {
+        return new GlUniformBuffer();
     }
 
-    public static StorageGLBuffer createStorage() {
-        return new StorageGLBuffer();
+    public static GlStorageBuffer createStorage() {
+        return new GlStorageBuffer();
     }
 
     @Override
     public void close() {
         if (RenderSystem.isOnRenderThread()) {
             GL45C.glDeleteBuffers(buffer);
-            GLErr.check();
+            GlErr.check();
         } else {
             RenderSystem.recordRenderCall(() -> {
                 GL45C.glDeleteBuffers(buffer);
-                GLErr.check();
+                GlErr.check();
             });
         }
     }

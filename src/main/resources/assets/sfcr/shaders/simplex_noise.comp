@@ -98,6 +98,7 @@ float snoise(vec3 v)
 void main()
 {
     ivec3 total_size = imageSize(sample_result);
+    if (gl_GlobalInvocationID.x >= total_size.x || gl_GlobalInvocationID.y >= total_size.y || gl_GlobalInvocationID.z >= total_size.z) return;
     ivec3 offset = imageLoad(sample_group_offset, ivec3(gl_WorkGroupID)).xyz;
     dvec3 pos = dvec3(ivec3(gl_LocalInvocationID) + offset);
     float result = snoise(vec3((pos + origin) * scale));

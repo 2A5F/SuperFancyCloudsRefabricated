@@ -1,4 +1,4 @@
-package com.rimo.sfcr.util;
+package com.rimo.sfcr.util.gl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
