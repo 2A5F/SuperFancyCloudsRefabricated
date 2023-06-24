@@ -17,6 +17,8 @@
 	"text.sfcr.option.enableNormalCull.@Tooltip": "剔除不面向玩家的云层面。\n已知问题：玩家移动时该剔除会有略微的延迟。",
 	"text.sfcr.option.debug": "输出调试信息",
 	"text.sfcr.option.debug.@Tooltip": "除非你是测试员，否则§4请勿启用§r。",
+	"text.sfcr.option.gpu": "使用 GPU 计算（实验性）",
+	"text.sfcr.option.gpu.@Tooltip": "使用 GPU 计算（实验性）",
 
 	"text.sfcr.category.clouds": "云层",
 	"text.sfcr.option.cloudHeight": "云高度",

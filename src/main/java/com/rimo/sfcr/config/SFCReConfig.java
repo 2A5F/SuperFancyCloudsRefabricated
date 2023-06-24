@@ -29,6 +29,7 @@ public class SFCReConfig implements ConfigData {
 	private float cullRadianMultiplier = 1.0f;
 	private boolean enableSmoothChange = false;
 	private boolean enableDebug = false;
+	private boolean enableGPU = false;
 	//----CLOUDS----
 	private int cloudHeight = 192;
 	private int cloudBlockSize = 16;
@@ -93,6 +94,7 @@ public class SFCReConfig implements ConfigData {
 	public boolean isBiomeDensityByChunk() {return isBiomeDensityByChunk;}
 	public boolean isBiomeDensityUseLoadedChunk() {return isBiomeDensityUseLoadedChunk;}
 	public List<String> getBiomeFilterList() {return biomeFilterList;}
+	public boolean isEnableGPU() {return enableGPU;}
 
 	//input func.
 	public void setEnableMod(boolean isEnable) {enableMod = isEnable;}
@@ -136,6 +138,7 @@ public class SFCReConfig implements ConfigData {
 	public void setBiomeDensityByChunk(boolean isEnable) {isBiomeDensityByChunk = isEnable;}
 	public void setBiomeDensityUseLoadedChunk(boolean isEnable) {isBiomeDensityUseLoadedChunk = isEnable;}
 	public void setBiomeFilterList(List<String> list) {biomeFilterList = list;}
+	public boolean setEnableGPU(boolean isEnable) {return enableGPU = isEnable;}
 
 	//conversion
 	public int getAutoFogMaxDistance() {
