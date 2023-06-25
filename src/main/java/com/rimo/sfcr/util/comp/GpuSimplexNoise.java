@@ -95,24 +95,20 @@ public class GpuSimplexNoise implements AutoCloseable {
         arg_offset.close();
     }
 
-    public void calc(GlTexture group_offset, GlTexture sample_result) {
+    public void calc(GlTexture sample_result) {
         RenderSystem.assertOnRenderThreadOrInit();
         int group_x = MathUtils.ceilDiv(sample_result.width, 8);
         int group_y = MathUtils.ceilDiv(sample_result.height, 8);
         int group_z = MathUtils.ceilDiv(sample_result.depth, 8);
-        if (group_offset.width != group_x || group_offset.height != group_y || group_offset.depth != group_z)
-            throw new RuntimeException("group_offset size must be same to group size");
         GL45C.glUseProgram(shader.program);
         GlErr.check();
         GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, this.arg_origin.buffer);
         GlErr.check();
-        GL45C.glBindImageTexture(1, group_offset.texture, 0, true, 0, GL45C.GL_READ_ONLY, GL45C.GL_RGBA32I);
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 1, this.arg_scale.buffer);
         GlErr.check();
-        GL45C.glBindImageTexture(2, sample_result.texture, 0, true, 0, GL45C.GL_WRITE_ONLY, GL45C.GL_R32F);
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 2, this.arg_offset.buffer);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 3, this.arg_scale.buffer);
-        GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 4, this.arg_offset.buffer);
+        GL45C.glBindImageTexture(3, sample_result.texture, 0, true, 0, GL45C.GL_WRITE_ONLY, GL45C.GL_R32F);
         GlErr.check();
         GL45C.glDispatchCompute(group_x, group_y, group_z);
         GlErr.check();

@@ -3,11 +3,9 @@ package com.rimo.sfcr.core;
 import com.rimo.sfcr.SFCReClient;
 import com.rimo.sfcr.SFCReMain;
 import com.rimo.sfcr.core.gpu.GpuRenderer;
-import com.rimo.sfcr.util.comp.GpuGenNoiseGroupOffset;
 import com.rimo.sfcr.util.comp.GpuSimplexNoise;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -53,7 +51,6 @@ public class ForwardRenderer {
     private static void ensureInitGpu() {
         if (gpuInited) return;
         gpuInited = true;
-        GpuGenNoiseGroupOffset.ensureInitStatic();
         GpuSimplexNoise.ensureInitStatic();
         gpuRenderer = new GpuRenderer();
     }

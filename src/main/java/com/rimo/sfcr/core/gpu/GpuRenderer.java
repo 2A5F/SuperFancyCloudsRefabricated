@@ -41,7 +41,7 @@ public class GpuRenderer implements AutoCloseable {
             var dixZ = Math.sin(dirArc);
             var playerPos = player.getBlockPos();
             var chunkPos = new ChunkPos(playerPos.add((int) (dirX * timeOffset), 0, (int) (dixZ * timeOffset)));
-            cloudData.setChunk(chunkPos.x, 0, chunkPos.z);
+            cloudData.setChunk(chunkPos.x, chunkPos.z);
         }
         cloudData.calc();
     }
