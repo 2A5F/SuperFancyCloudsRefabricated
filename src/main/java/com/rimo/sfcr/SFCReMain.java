@@ -3,6 +3,7 @@ package com.rimo.sfcr;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.rimo.sfcr.core.ForwardRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +125,7 @@ public class SFCReMain implements ModInitializer {
 		}
 
 		config.setBiomeFilterList(list);
+		ForwardRenderer.setConfigChanged();
 		SFCReClient.RENDERER.updateRenderData(config);
 		SFCReClient.RENDERER.init();		// Reset renderer.
 

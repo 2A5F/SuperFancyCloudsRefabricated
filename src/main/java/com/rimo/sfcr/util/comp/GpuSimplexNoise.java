@@ -2,10 +2,7 @@ package com.rimo.sfcr.util.comp;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rimo.sfcr.util.MathUtils;
-import com.rimo.sfcr.util.gl.ComputeShaderProgram;
-import com.rimo.sfcr.util.gl.GlBuffer;
-import com.rimo.sfcr.util.gl.GlErr;
-import com.rimo.sfcr.util.gl.GlTexture;
+import com.rimo.sfcr.util.gl.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.math.random.Random;
@@ -22,57 +19,53 @@ public class GpuSimplexNoise implements AutoCloseable {
         shader = ComputeShaderProgram.load("assets/sfcr/shaders/simplex_noise.comp");
     }
 
-    private double originX;
-    private double originY;
-    private double originZ;
+    private final DVec3 origin;
+    private final DVec3 scale;
+    private final DVec3 offset;
 
-    private double scaleX;
-    private double scaleY;
-    private double scaleZ;
-
-    private final GlBuffer args;
-    private final GlBuffer params;
-
-    public GpuSimplexNoise(Random random) {
-        this(random, 1);
-    }
-
-    public GpuSimplexNoise(Random random, double scale) {
-        this(random, scale, scale, scale);
-    }
+    private final GlBuffer arg_origin;
+    private final GlBuffer arg_scale;
+    private final GlBuffer arg_offset;
 
     public GpuSimplexNoise(Random random, double scaleX, double scaleY, double scaleZ) {
         RenderSystem.assertOnRenderThreadOrInit();
 
+        origin = new DVec3(0, 0, 0);
         reGenOrigin(random);
 
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
-        this.scaleZ = scaleZ;
+        scale = new DVec3(scaleX, scaleY, scaleZ);
+        offset = new DVec3(0, 0, 0);
 
-        args = GlBuffer.createUniform();
+        arg_origin = GlBuffer.createUniform();
         uploadOrigin();
 
-        params = GlBuffer.createUniform();
+        arg_scale = GlBuffer.createUniform();
         uploadScale();
+
+        arg_offset = GlBuffer.createUniform();
+        uploadOffset();
     }
 
     private void uploadOrigin() {
-        args.bind();
-        args.upload(new double[]{originX, originY, originZ}, GL45C.GL_DYNAMIC_DRAW);
-        args.unbind();
+        arg_origin.bind();
+        arg_origin.upload(origin.xyz, GL45C.GL_DYNAMIC_DRAW);
+        arg_origin.unbind();
     }
 
     private void uploadScale() {
-        params.bind();
-        params.upload(new double[]{scaleX, scaleY, scaleZ}, GL45C.GL_DYNAMIC_DRAW);
-        params.unbind();
+        arg_scale.bind();
+        arg_scale.upload(scale.xyz, GL45C.GL_DYNAMIC_DRAW);
+        arg_scale.unbind();
+    }
+
+    private void uploadOffset() {
+        arg_offset.bind();
+        arg_offset.upload(offset.xyz, GL45C.GL_DYNAMIC_DRAW);
+        arg_offset.unbind();
     }
 
     private void reGenOrigin(Random random) {
-        originX = random.nextDouble() * 256.0;
-        originY = random.nextDouble() * 256.0;
-        originZ = random.nextDouble() * 256.0;
+        origin.setXYZ(random.nextDouble() * 256.0, random.nextDouble() * 256.0, random.nextDouble() * 256.0);
     }
 
     public void reRand(Random random) {
@@ -81,23 +74,25 @@ public class GpuSimplexNoise implements AutoCloseable {
         uploadOrigin();
     }
 
-    public void setScale(double scale) {
-        setScale(scale, scale, scale);
+    public void setScale(double scaleX, double scaleY, double scaleZ) {
+        if (scale.eqXYZ(scaleX, scaleY, scaleZ)) return;
+        RenderSystem.assertOnRenderThreadOrInit();
+        scale.setXYZ(scaleX, scaleY, scaleZ);
+        uploadScale();
     }
 
-    public void setScale(double scaleX, double scaleY, double scaleZ) {
-        if (this.scaleX == scaleX && this.scaleY == scaleY && this.scaleZ == scaleZ) return;
+    public void setOffset(double offsetX, double offsetY, double offsetZ) {
+        if (offset.eqXYZ(offsetX, offsetY, offsetZ)) return;
         RenderSystem.assertOnRenderThreadOrInit();
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
-        this.scaleZ = scaleZ;
-        this.uploadScale();
+        offset.setXYZ(offsetX, offsetY, offsetZ);
+        uploadOffset();
     }
 
     @Override
     public void close() {
-        args.close();
-        params.close();
+        arg_origin.close();
+        arg_scale.close();
+        arg_offset.close();
     }
 
     public void calc(GlTexture group_offset, GlTexture sample_result) {
@@ -109,13 +104,15 @@ public class GpuSimplexNoise implements AutoCloseable {
             throw new RuntimeException("group_offset size must be same to group size");
         GL45C.glUseProgram(shader.program);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, this.args.buffer);
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, this.arg_origin.buffer);
         GlErr.check();
         GL45C.glBindImageTexture(1, group_offset.texture, 0, true, 0, GL45C.GL_READ_ONLY, GL45C.GL_RGBA32I);
         GlErr.check();
         GL45C.glBindImageTexture(2, sample_result.texture, 0, true, 0, GL45C.GL_WRITE_ONLY, GL45C.GL_R32F);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 3, this.params.buffer);
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 3, this.arg_scale.buffer);
+        GlErr.check();
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 4, this.arg_offset.buffer);
         GlErr.check();
         GL45C.glDispatchCompute(group_x, group_y, group_z);
         GlErr.check();

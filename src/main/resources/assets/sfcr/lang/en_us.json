@@ -16,8 +16,6 @@
 	"text.sfcr.option.enableNormalCull.@Tooltip": "Cull clouds face that no facing towards you.\nKnown Issue: slightly delay when player moving.",
 	"text.sfcr.option.debug": "DEBUG",
 	"text.sfcr.option.debug.@Tooltip": "Output debug string to log.\nDo §4NOT§r enable it unless you're tester.",
-	"text.sfcr.option.gpu": "Computing with GPUs (Experimental)",
-	"text.sfcr.option.gpu.@Tooltip": "Computing with GPUs (Experimental)",
 
 	"text.sfcr.category.clouds": "Cloud",
 	"text.sfcr.option.cloudHeight": "Cloud Height",
@@ -73,6 +71,18 @@
 	"text.sfcr.option.isBiomeDensityUseLoadedChunk.@Tooltip": "\"Detect From Chunk\" needs enabled.\nDistant cloud which no chunk beneath it\nwill try to detect loaded chunk nearby player\ninstead of use sample data.\nEnabled it can smoother cloud near and distant, \nbut will make distant flicker due to chunk change.",
 	"text.sfcr.option.biomeFilter": "Biome Affect Filter",
 	"text.sfcr.option.biomeFilter.@Tooltip": "Biome in this list will not affect cloud density.\nFormat: §omodid:biomeid§r or §o#modid:biometag§r",
+
+	"text.sfcr.category.gpu": "GPU",
+	"text.sfcr.option.gpu": "Computing with GPUs (Experimental)",
+	"text.sfcr.option.gpu.@Tooltip": "Computing with GPUs (Experimental)",
+	"text.sfcr.option.noiseScaleXY": "Scaling of noise in horizontal direction",
+	"text.sfcr.option.noiseScaleXY.@Tooltip": "The smaller the value, the bigger the cloud",
+	"text.sfcr.option.noiseScaleZ": "Scaling of noise in the vertical direction",
+	"text.sfcr.option.noiseScaleZ.@Tooltip": "The smaller the value, the bigger the cloud",
+	"text.sfcr.option.cloudMoveSpeed": "Cloud movement speed",
+	"text.sfcr.option.cloudMoveSpeed.@Tooltip": "Higher and farther",
+	"text.sfcr.option.cloudMoveDirection": "Direction of cloud movement",
+	"text.sfcr.option.cloudMoveDirection.@Tooltip": "Horizontal 360°",
 
 	"text.sfcr.command.sync_request": "[SFCRe] Requesting sync to server...",
 	"text.sfcr.command.sync_succ": "[SFCRe] Sync successfully!",

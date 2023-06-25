@@ -2,7 +2,7 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-layout (std140, binding = 0) uniform args
+layout (std140, binding = 0) uniform arg_origin
 {
     dvec3 origin;
 };
@@ -13,9 +13,14 @@ layout (binding = 1, rgba32i) uniform readonly restrict iimage3D sample_group_of
 
 layout (binding = 2, r32f) uniform writeonly restrict image3D sample_result;
 
-layout (std140, binding = 3) uniform params
+layout (std140, binding = 3) uniform arg_scale
 {
     dvec3 scale;
+};
+
+layout (std140, binding = 4) uniform arg_offset
+{
+    dvec3 offset;
 };
 
 // noise algor from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
@@ -99,8 +104,8 @@ void main()
 {
     ivec3 total_size = imageSize(sample_result);
     if (gl_GlobalInvocationID.x >= total_size.x || gl_GlobalInvocationID.y >= total_size.y || gl_GlobalInvocationID.z >= total_size.z) return;
-    ivec3 offset = imageLoad(sample_group_offset, ivec3(gl_WorkGroupID)).xyz;
-    dvec3 pos = dvec3(ivec3(gl_LocalInvocationID) + offset);
-    float result = snoise(vec3((pos + origin) * scale));
+    ivec3 off = imageLoad(sample_group_offset, ivec3(gl_WorkGroupID)).xyz;
+    dvec3 pos = dvec3(ivec3(gl_LocalInvocationID) + off);
+    float result = snoise(vec3((pos + origin + offset) * scale));
     imageStore(sample_result, ivec3(gl_GlobalInvocationID), vec4(result));
 }

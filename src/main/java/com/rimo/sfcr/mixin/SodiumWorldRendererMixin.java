@@ -15,6 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SodiumWorldRendererMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     public void renderSFC(@Nullable ClientWorld world, ClientPlayerEntity player, MatrixStack matrices, Matrix4f projectionMatrix, float ticks, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
-        ForwardRenderer.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ, ci);
+        ForwardRenderer.render(world, player, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ, ci);
     }
 }

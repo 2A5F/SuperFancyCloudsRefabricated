@@ -29,7 +29,6 @@ public class SFCReConfig implements ConfigData {
 	private float cullRadianMultiplier = 1.0f;
 	private boolean enableSmoothChange = false;
 	private boolean enableDebug = false;
-	private boolean enableGPU = false;
 	//----CLOUDS----
 	private int cloudHeight = 192;
 	private int cloudBlockSize = 16;
@@ -58,6 +57,12 @@ public class SFCReConfig implements ConfigData {
 	private boolean isBiomeDensityByChunk = false;
 	private boolean isBiomeDensityUseLoadedChunk = false;
 	private List<String> biomeFilterList = DEF_BIOME_FILTER_LIST;
+	//----GPU----
+	private boolean enableGPU = false;
+	private double noiseScaleXY = 0.05;
+	private double noiseScaleZ = 0.05;
+	private double cloudMoveSpeed = 0.1;
+    private int cloudMoveDirection = 0;
 
 	//output func.
 	public boolean isEnableMod() {return enableMod;}
@@ -94,7 +99,6 @@ public class SFCReConfig implements ConfigData {
 	public boolean isBiomeDensityByChunk() {return isBiomeDensityByChunk;}
 	public boolean isBiomeDensityUseLoadedChunk() {return isBiomeDensityUseLoadedChunk;}
 	public List<String> getBiomeFilterList() {return biomeFilterList;}
-	public boolean isEnableGPU() {return enableGPU;}
 
 	//input func.
 	public void setEnableMod(boolean isEnable) {enableMod = isEnable;}
@@ -138,7 +142,6 @@ public class SFCReConfig implements ConfigData {
 	public void setBiomeDensityByChunk(boolean isEnable) {isBiomeDensityByChunk = isEnable;}
 	public void setBiomeDensityUseLoadedChunk(boolean isEnable) {isBiomeDensityUseLoadedChunk = isEnable;}
 	public void setBiomeFilterList(List<String> list) {biomeFilterList = list;}
-	public boolean setEnableGPU(boolean isEnable) {return enableGPU = isEnable;}
 
 	//conversion
 	public int getAutoFogMaxDistance() {
@@ -185,4 +188,44 @@ public class SFCReConfig implements ConfigData {
 			return this.getNoneDensity() / 100f;
 		}
 	}
+
+	public boolean isEnableGPU() {
+		return enableGPU;
+	}
+
+	public boolean setEnableGPU(boolean isEnable) {
+		return enableGPU = isEnable;
+	}
+
+	public double getNoiseScaleXY() {
+		return noiseScaleXY;
+	}
+
+	public void setNoiseScaleXY(double noiseScaleXY) {
+		this.noiseScaleXY = noiseScaleXY;
+	}
+
+	public double getNoiseScaleZ() {
+		return noiseScaleZ;
+	}
+
+	public void setNoiseScaleZ(double noiseScaleZ) {
+		this.noiseScaleZ = noiseScaleZ;
+	}
+
+	public double getCloudMoveSpeed() {
+		return cloudMoveSpeed;
+	}
+
+	public void setCloudMoveSpeed(double cloudMoveSpeed) {
+		this.cloudMoveSpeed = cloudMoveSpeed;
+	}
+
+    public int getCloudMoveDirection() {
+        return cloudMoveDirection;
+    }
+
+    public void setCloudMoveDirection(int cloudMoveDirection) {
+        this.cloudMoveDirection = cloudMoveDirection;
+    }
 }

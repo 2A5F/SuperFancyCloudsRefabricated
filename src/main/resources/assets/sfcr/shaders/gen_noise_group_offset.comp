@@ -2,7 +2,7 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-layout (std140, binding = 0) uniform args
+layout (std140, binding = 0) uniform arg_origin
 {
     ivec3 origin;
 };

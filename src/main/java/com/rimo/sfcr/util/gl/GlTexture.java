@@ -27,6 +27,11 @@ public class GlTexture implements AutoCloseable {
         }
     }
 
+    public void setLabel(CharSequence label) {
+        GL45C.glObjectLabel(GL45C.GL_TEXTURE, texture, label);
+        GlErr.check();
+    }
+
     private GlTexture(int texture, int target, int format, int width, int height, int depth) {
         this.texture = texture;
         this.target = target;

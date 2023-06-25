@@ -2,10 +2,7 @@ package com.rimo.sfcr.util.comp;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rimo.sfcr.util.MathUtils;
-import com.rimo.sfcr.util.gl.ComputeShaderProgram;
-import com.rimo.sfcr.util.gl.GlBuffer;
-import com.rimo.sfcr.util.gl.GlErr;
-import com.rimo.sfcr.util.gl.GlTexture;
+import com.rimo.sfcr.util.gl.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL45C;
@@ -20,52 +17,44 @@ public class GpuGenNoiseGroupOffset implements AutoCloseable {
         shader = ComputeShaderProgram.load("assets/sfcr/shaders/gen_noise_group_offset.comp");
     }
 
-    public GlBuffer args;
-
-    public int originX;
-    public int originY;
-    public int originZ;
+    private final IVec3 origin;
+    private final GlBuffer arg_origin;
 
     public GpuGenNoiseGroupOffset() {
         this(0, 0, 0);
     }
 
     public GpuGenNoiseGroupOffset(int originX, int originY, int originZ) {
-        this.originX = originX;
-        this.originY = originY;
-        this.originZ = originZ;
-
-        this.args = GlBuffer.createUniform();
+        origin = new IVec3(originX, originY, originZ);
+        arg_origin = GlBuffer.createUniform();
         uploadOrigin();
     }
 
     private void uploadOrigin() {
-        this.args.bind();
-        this.args.upload(new int[]{originX, originY, originZ}, GL45C.GL_DYNAMIC_DRAW);
-        this.args.unbind();
+        arg_origin.bind();
+        arg_origin.upload(origin.xyz, GL45C.GL_DYNAMIC_DRAW);
+        arg_origin.unbind();
     }
 
     public void setOrigin(int originX, int originY, int originZ) {
-        if (this.originX == originX && this.originY == originY && this.originZ == originZ) return;
-        this.originX = originX;
-        this.originY = originY;
-        this.originZ = originZ;
+        if (origin.eqXYZ(originX, originY, originZ)) return;
+        origin.setXYZ(originX, originY, originZ);
         this.uploadOrigin();
     }
 
     @Override
     public void close() {
-        args.close();
+        arg_origin.close();
     }
 
     public void calc(GlTexture group_offset) {
         RenderSystem.assertOnRenderThreadOrInit();
-        int group_x = MathUtils.ceil8(group_offset.width);
-        int group_y = MathUtils.ceil8(group_offset.height);
-        int group_z = MathUtils.ceil8(group_offset.depth);
+        int group_x = MathUtils.ceilDiv(MathUtils.ceil8(group_offset.width), 8);
+        int group_y = MathUtils.ceilDiv(MathUtils.ceil8(group_offset.height), 8);
+        int group_z = MathUtils.ceilDiv(MathUtils.ceil8(group_offset.depth), 8);
         GL45C.glUseProgram(shader.program);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, this.args.buffer);
+        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, arg_origin.buffer);
         GlErr.check();
         GL45C.glBindImageTexture(1, group_offset.texture, 0, true, 0, GL45C.GL_WRITE_ONLY, GL45C.GL_RGBA32I);
         GlErr.check();
