@@ -61,6 +61,8 @@ public class SFCReConfig implements ConfigData {
 	private boolean enableGPU = false;
 	private double noiseScaleXY = 0.05;
 	private double noiseScaleZ = 0.05;
+	private float noiseLowerBound = 0.5f;
+	private float noiseUpperBound = 0.7f;
 	private double cloudMoveSpeed = 0.1;
     private int cloudMoveDirection = 0;
 
@@ -228,4 +230,20 @@ public class SFCReConfig implements ConfigData {
     public void setCloudMoveDirection(int cloudMoveDirection) {
         this.cloudMoveDirection = cloudMoveDirection;
     }
+
+	public float getNoiseLowerBound() {
+		return noiseLowerBound;
+	}
+
+	public void setNoiseLowerBound(float noiseLowerBound) {
+		this.noiseLowerBound = noiseLowerBound;
+	}
+
+	public float getNoiseUpperBound() {
+		return noiseUpperBound;
+	}
+
+	public void setNoiseUpperBound(float noiseUpperBound) {
+		this.noiseUpperBound = noiseUpperBound;
+	}
 }

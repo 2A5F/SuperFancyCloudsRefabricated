@@ -5,6 +5,7 @@ import com.rimo.sfcr.SFCReMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.opengl.GL43C;
 import org.lwjgl.opengl.GL45C;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class ShaderUtils {
-    public static int LoadShaderRaw(String path) {
+    public static int LoadShaderRaw(String path, int shader_type) {
         RenderSystem.assertOnRenderThreadOrInit();
         String code;
         try (var is = SFCReMain.class.getClassLoader().getResourceAsStream(path)) {
@@ -22,7 +23,8 @@ public class ShaderUtils {
             SFCReMain.LOGGER.error("Could not load shader: <" + path + ">");
             return -1;
         }
-        var shader = GL45C.glCreateShader(GL45C.GL_COMPUTE_SHADER);
+        var shader = GL45C.glCreateShader(shader_type);
+        GlErr.check();
         GL45C.glShaderSource(shader, code);
         GL45C.glCompileShader(shader);
         var compiled = GL45C.glGetShaderi(shader, GL45C.GL_COMPILE_STATUS);
@@ -32,12 +34,14 @@ public class ShaderUtils {
             GL45C.glDeleteShader(shader);
             return -1;
         }
+        GL45C.glObjectLabel(GL43C.GL_SHADER, shader, path);
+        GlErr.check();
         return shader;
     }
 
     public static int LoadComputeProgramRaw(String path) {
         RenderSystem.assertOnRenderThreadOrInit();
-        var shader = ShaderUtils.LoadShaderRaw(path);
+        var shader = ShaderUtils.LoadShaderRaw(path, GL45C.GL_COMPUTE_SHADER);
         if (shader == -1) return -1;
         var program = GL45C.glCreateProgram();
         GL45C.glAttachShader(program, shader);
@@ -50,6 +54,8 @@ public class ShaderUtils {
             GL45C.glDeleteProgram(program);
             return -1;
         }
+        GL45C.glObjectLabel(GL43C.GL_PROGRAM, program, path);
+        GlErr.check();
         return program;
     }
 }

@@ -449,6 +449,26 @@ public class SFCReConfigScreen {
                 .setTooltip(Text.translatable("text.sfcr.option.noiseScaleZ.@Tooltip"))
                 .setSaveConsumer(config::setNoiseScaleZ)
                 .build());
+        // noiseLowerBound
+        gpu.addEntry(entryBuilder
+                .startFloatField(Text.translatable("text.sfcr.option.noiseLowerBound"),
+                        config.getNoiseLowerBound())
+                .setDefaultValue(0.5f)
+                .setMin(-1)
+                .setMax(1)
+                .setTooltip(Text.translatable("text.sfcr.option.noiseLowerBound.@Tooltip"))
+                .setSaveConsumer(config::setNoiseLowerBound)
+                .build());
+        // noiseUpperBound
+        gpu.addEntry(entryBuilder
+                .startFloatField(Text.translatable("text.sfcr.option.noiseUpperBound"),
+                        config.getNoiseUpperBound())
+                .setDefaultValue(0.7f)
+                .setMin(-1)
+                .setMax(1)
+                .setTooltip(Text.translatable("text.sfcr.option.noiseLowerBound.@Tooltip"))
+                .setSaveConsumer(config::setNoiseUpperBound)
+                .build());
         // cloudMoveSpeed
         gpu.addEntry(entryBuilder
                 .startDoubleField(Text.translatable("text.sfcr.option.cloudMoveSpeed"),
@@ -459,7 +479,6 @@ public class SFCReConfigScreen {
                 .setSaveConsumer(config::setCloudMoveSpeed)
                 .build());
         // cloudMoveDirection
-        var df = new DecimalFormat("0.00");
         gpu.addEntry(entryBuilder
                 .startIntSlider(Text.translatable("text.sfcr.option.cloudMoveDirection"),
                         (int) config.getCloudMoveDirection(), 0, 360)

@@ -3,7 +3,8 @@ package com.rimo.sfcr.core;
 import com.rimo.sfcr.SFCReClient;
 import com.rimo.sfcr.SFCReMain;
 import com.rimo.sfcr.core.gpu.GpuRenderer;
-import com.rimo.sfcr.util.comp.GpuSimplexNoise;
+import com.rimo.sfcr.core.gpu.comp.GpuCloudMeshComp;
+import com.rimo.sfcr.core.gpu.comp.GpuSimplexNoiseComp;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -26,8 +27,9 @@ public class ForwardRenderer {
             checkConfigChange();
             if (SFCReMain.config.isEnableGPU()) {
                 gpuRenderer.render(world, player, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ);
+            } else {
+                SFCReClient.RENDERER.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ);
             }
-            SFCReClient.RENDERER.render(world, matrices, projectionMatrix, tickDelta, cameraX, cameraY, cameraZ);
             ci.cancel();
         }
     }
@@ -51,7 +53,8 @@ public class ForwardRenderer {
     private static void ensureInitGpu() {
         if (gpuInited) return;
         gpuInited = true;
-        GpuSimplexNoise.ensureInitStatic();
+        GpuSimplexNoiseComp.ensureInitStatic();
+        GpuCloudMeshComp.ensureInitStatic();
         gpuRenderer = new GpuRenderer();
     }
 }

@@ -33,16 +33,17 @@ public class GpuRenderer implements AutoCloseable {
             seed = SFCReMain.RUNTIME.seed;
             cloudData.setSeed(seed);
         }
-        if (time != SFCReMain.RUNTIME.time) {
-            time = SFCReMain.RUNTIME.time;
-            var dirArc = CONFIG.getCloudMoveDirection() * Math.PI / 180.0;
-            var timeOffset = time * CONFIG.getCloudMoveSpeed();
-            var dirX = Math.cos(dirArc);
-            var dixZ = Math.sin(dirArc);
-            var playerPos = player.getBlockPos();
-            var chunkPos = new ChunkPos(playerPos.add((int) (dirX * timeOffset), 0, (int) (dixZ * timeOffset)));
-            cloudData.setChunk(chunkPos.x, chunkPos.z);
-        }
+        var centerPos = player.getBlockPos();
+//        if (time != SFCReMain.RUNTIME.time) {
+//            time = SFCReMain.RUNTIME.time;
+//            var dirArc = CONFIG.getCloudMoveDirection() * Math.PI / 180.0;
+//            var timeOffset = time * CONFIG.getCloudMoveSpeed();
+//            var dirX = Math.cos(dirArc);
+//            var dirZ = Math.sin(dirArc);
+//            centerPos.add((int) Math.round(dirX * timeOffset), 0, (int) Math.round(dirZ * timeOffset));
+//        }
+        var chunkPos = new ChunkPos(centerPos);
+        cloudData.setChunk(chunkPos.x, chunkPos.z);
         cloudData.calc();
     }
 

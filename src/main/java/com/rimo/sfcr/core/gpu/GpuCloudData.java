@@ -3,8 +3,9 @@ package com.rimo.sfcr.core.gpu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rimo.sfcr.SFCReMain;
 import com.rimo.sfcr.config.SFCReConfig;
+import com.rimo.sfcr.core.gpu.comp.GpuCloudMeshComp;
 import com.rimo.sfcr.util.MathUtils;
-import com.rimo.sfcr.util.comp.GpuSimplexNoise;
+import com.rimo.sfcr.core.gpu.comp.GpuSimplexNoiseComp;
 import com.rimo.sfcr.util.gl.GlTexture;
 import com.rimo.sfcr.util.gl.IVec3;
 import net.fabricmc.api.EnvType;
@@ -17,7 +18,8 @@ public class GpuCloudData implements AutoCloseable {
     private static final SFCReConfig CONFIG = SFCReMain.CONFIGHOLDER.getConfig();
 
     private long seed;
-    private final GpuSimplexNoise simplexNoise;
+    private final GpuSimplexNoiseComp simplexNoise;
+    public final GpuCloudMeshComp cloudMesh;
 
     private GlTexture sample_result;
 
@@ -35,7 +37,8 @@ public class GpuCloudData implements AutoCloseable {
         this.seed = seed;
         scaleXY = CONFIG.getNoiseScaleXY();
         scaleZ = CONFIG.getNoiseScaleZ();
-        simplexNoise = new GpuSimplexNoise(Random.create(seed), scaleXY, scaleXY, scaleZ);
+        simplexNoise = new GpuSimplexNoiseComp(Random.create(seed), scaleXY, scaleXY, scaleZ);
+        cloudMesh = new GpuCloudMeshComp(CONFIG.getNoiseLowerBound(), CONFIG.getNoiseUpperBound());
         loadConfig();
     }
 
@@ -79,6 +82,7 @@ public class GpuCloudData implements AutoCloseable {
         sample_result = GlTexture.create3D(cloud_size_xy, cloud_size_xy, cloud_size_z, GL45C.GL_R32F);
         sample_result.setLabel("sfcr.GpuCloudData.sample_result");
         needResampleNoise = true;
+        cloudMesh.setNoiseData(sample_result);
     }
 
     private final IVec3 chunk = new IVec3(0, 0, 0);
@@ -95,7 +99,8 @@ public class GpuCloudData implements AutoCloseable {
     public void calc() {
         if (needResampleNoise) {
             needResampleNoise = false;
-            simplexNoise.calc( sample_result);
+            simplexNoise.calc(sample_result);
         }
+        cloudMesh.calc();
     }
 }

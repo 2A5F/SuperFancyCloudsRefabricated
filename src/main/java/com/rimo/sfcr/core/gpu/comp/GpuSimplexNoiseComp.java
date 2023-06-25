@@ -1,4 +1,4 @@
-package com.rimo.sfcr.util.comp;
+package com.rimo.sfcr.core.gpu.comp;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rimo.sfcr.util.MathUtils;
@@ -9,7 +9,7 @@ import net.minecraft.util.math.random.Random;
 import org.lwjgl.opengl.GL45C;
 
 @Environment(EnvType.CLIENT)
-public class GpuSimplexNoise implements AutoCloseable {
+public class GpuSimplexNoiseComp implements AutoCloseable {
 
     private static ComputeShaderProgram shader;
 
@@ -27,7 +27,7 @@ public class GpuSimplexNoise implements AutoCloseable {
     private final GlBuffer arg_scale;
     private final GlBuffer arg_offset;
 
-    public GpuSimplexNoise(Random random, double scaleX, double scaleY, double scaleZ) {
+    public GpuSimplexNoiseComp(Random random, double scaleX, double scaleY, double scaleZ) {
         RenderSystem.assertOnRenderThreadOrInit();
 
         origin = new DVec3(0, 0, 0);
@@ -102,11 +102,11 @@ public class GpuSimplexNoise implements AutoCloseable {
         int group_z = MathUtils.ceilDiv(sample_result.depth, 8);
         GL45C.glUseProgram(shader.program);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 0, this.arg_origin.buffer);
+        GL45C.glBindBufferBase(arg_origin.target, 0, arg_origin.buffer);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 1, this.arg_scale.buffer);
+        GL45C.glBindBufferBase(arg_scale.target, 1, arg_scale.buffer);
         GlErr.check();
-        GL45C.glBindBufferBase(GL45C.GL_UNIFORM_BUFFER, 2, this.arg_offset.buffer);
+        GL45C.glBindBufferBase(arg_offset.target, 2, arg_offset.buffer);
         GlErr.check();
         GL45C.glBindImageTexture(3, sample_result.texture, 0, true, 0, GL45C.GL_WRITE_ONLY, GL45C.GL_R32F);
         GlErr.check();

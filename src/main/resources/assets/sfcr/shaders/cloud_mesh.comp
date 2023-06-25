@@ -1,0 +1,89 @@
+#version 450
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout (binding = 0, r32f) uniform readonly restrict image3D simplex_noise;
+
+// size need (simplex_noise.x * y * z) * 2 * 4 * sizeof(vec4)
+layout (std430, binding = 1) buffer verts_result
+{
+    vec4 verts[];
+};
+
+// size need (simplex_noise.x * y * z) * 2 * 6 * sizeof(int)
+layout (std430, binding = 2) buffer tris_result
+{
+    int tris[];
+};
+
+// size = sizeof(int)
+// need clear with fill 0
+layout (std430, binding = 3) buffer quad_count_acc
+{
+    int quad_count;
+};
+
+// (lower, upper)
+layout (std140, binding = 4) uniform arg_lower_upper_bound
+{
+    vec2 lower_upper_bound; // todo, upper will be used for the transition
+};
+
+bool in_bound(float v) {
+    return v >= lower_upper_bound.x;
+}
+
+bool exist_cloud(ivec3 pos) {
+    if (pos.x < 0 || pos.y < 0 || pos.z < 0) return false;
+    ivec3 total_size = imageSize(simplex_noise);
+    if (pos.x >= total_size.x || pos.y >= total_size.y || pos.z >= total_size.z) return false;
+    float v = imageLoad(simplex_noise, pos).x;
+    return in_bound(v);
+}
+
+// a b
+// c d
+void add_quad(vec3 a, vec3 b, vec3 c, vec3 d) {
+    int i = atomicAdd(quad_count, 1);
+    int vi = i * 4;
+    int ti = i * 6;
+    verts[vi + 0] = vec4(a, 1);
+    verts[vi + 1] = vec4(b, 1);
+    verts[vi + 2] = vec4(c, 1);
+    verts[vi + 3] = vec4(d, 1);
+    tris[ti + 0] = vi + 0;
+    tris[ti + 1] = vi + 1;
+    tris[ti + 2] = vi + 3;
+    tris[ti + 3] = vi + 0;
+    tris[ti + 4] = vi + 3;
+    tris[ti + 5] = vi + 2;
+}
+
+void gen_mesh(ivec3 pos) {
+    if (!exist_cloud(pos)) return;
+    // top
+    if (!exist_cloud(pos + ivec3(0, -1, 0))) {
+        add_quad(
+            vec3(pos) + vec3(-0.5, 0.5, -0.5),
+            vec3(pos) + vec3(0.5, 0.5, -0.5),
+            vec3(pos) + vec3(-0.5, 0.5, 0.5),
+            vec3(pos) + vec3(-0.5, 0.5, 0.5)
+        );
+    }
+    // bottom
+    if (!exist_cloud(pos + ivec3(0, 1, 0))) {
+        add_quad(
+            vec3(pos) + vec3(-0.5, -0.5, -0.5),
+            vec3(pos) + vec3(0.5, -0.5, -0.5),
+            vec3(pos) + vec3(-0.5, -0.5, 0.5),
+            vec3(pos) + vec3(-0.5, -0.5, 0.5)
+        );
+    }
+    // todo
+}
+
+void main() {
+    ivec3 total_size = imageSize(simplex_noise);
+    if (gl_GlobalInvocationID.x >= total_size.x || gl_GlobalInvocationID.y >= total_size.y || gl_GlobalInvocationID.z >= total_size.z) return;
+    gen_mesh(ivec3(gl_GlobalInvocationID));
+}
